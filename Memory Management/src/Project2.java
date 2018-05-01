@@ -82,11 +82,52 @@ public class Project2 {
 		
 	}
 	
+	private static void printMemory(ArrayList<Character> memory) {
+		System.out.println("================================");
+		for(int i=0; i<8;i++) {
+			String str;
+			for(int j=32*i;j<(i+1)*32;j++) {
+				System.out.print(memory.get(j));
+			}
+			System.out.println("");
+		}	
+		System.out.println("================================");
+	}
+	
 	private static void defragment(ArrayList<Character> memory){
 		
 	}
 	
+	public static void arrival(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc, int time) {
+		for(int i=0; i<processes.size();i++) {
+			ArrayList<Integer> arrTimes = processes.get(i).getArrTimes();
+			for(int j=0;j<arrTimes.size();j++) {
+				if(arrTimes.get(j)==time) {
+					activeProc.add(processes.get(i));
+					System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (required "+processes.get(i).getMemFrames()+" frames)");
+					//addNextFit(processes.get(i), memory);
+					printMemory(memory);
+				}
+			}
+		}
+	}
+	
+	public static void removal(ArrayList<Process> activeProc, ArrayList<Character> memory, int time) {
+		for(int i=0;i<activeProc.size();i++) {
+			ArrayList<Integer> arrTimes = activeProc.get(i).getArrTimes();
+			ArrayList<Integer> runTimes = activeProc.get(i).getRTimes();
+			for(int j=0;j<arrTimes.size();j++) {
+				if(time == arrTimes.get(j)+runTimes.get(j)){
+					System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
+					//remove(activeProc.get(i), memory);
+					printMemory(memory);
+				}
+			}
+		}
+	}
+	
 	private static void next_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
+		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		
 	}
 
