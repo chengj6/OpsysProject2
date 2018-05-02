@@ -91,6 +91,14 @@ public class Project2 {
 		}
 	}
 	
+	public static void remove (Process process, ArrayList<Character> memory) {
+		for(int i=0;i<Max_Mem_Frames;i++) {
+			if (memory.get(i).equals(process.getID().charAt(0))){
+				memory.set(i, '.');
+			}
+		}
+	}
+	
 	public static void removal(ArrayList<Process> activeProc, ArrayList<Character> memory) {
 		for(int i=0;i<activeProc.size();i++) {
 			ArrayList<Integer> arrTimes = activeProc.get(i).getArrTimes();
@@ -98,7 +106,8 @@ public class Project2 {
 			int currentBurst = activeProc.get(i).getBLA();
 			if(time == arrTimes.get(currentBurst)+runTimes.get(currentBurst)){
 				System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
-				//remove(activeProc.get(i), memory);
+				activeProc.get(i).incrementBLA(); //need to add way to make sure this doesn't go out of bounds
+				remove(activeProc.get(i), memory);
 				printMemory(memory);
 			}
 		}

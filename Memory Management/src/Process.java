@@ -37,6 +37,10 @@ public class Process {
 //		
 //	}
 	
+	public void incrementBLA() {
+		burstLookingAt++;
+	}
+	
 	//Getting Data
 	public String getID() {
 		return id;
