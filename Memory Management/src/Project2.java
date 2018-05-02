@@ -58,7 +58,7 @@ public class Project2 {
 			}
 		}
 		next_fit(processes, memory, null);
-		
+		non_contiguous(processes, memory, null);
 	}
 	
 	private static void printMemory(ArrayList<Character> memory) {
@@ -272,7 +272,65 @@ public class Project2 {
 		
 	}
 	
-	private static void non_contiguous(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
+	public static void addNonContiguous(Process p, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Process> processes, ArrayList<ArrayList<Pair>> pTable, int time){
+		int fNeeded = p.getMemFrames();
+		int freeFrames = 0;
+		int startOfFreeFrames = -1;
+		for(int i=0; i<Max_Mem_Frames; i++) {
+			if(memory.get(i)=='.') {
+				startOfFreeFrames = i;
+				break;
+			}
+		}
+		for(int i=0;i<Max_Mem_Frames;i++) {
+			if(memory.get(i)=='.') {
+				freeFrames++;
+			}
+		}
+		if(freeFrames<fNeeded) {
+			System.out.println("time "+time+"ms: Cannot place process "+p.getID()+" -- skipped!");
+			return;
+		}
 		
+	}
+	
+	public static void NonContiguousArrival(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<ArrayList<Pair>> pTable, int time) {
+		for(int i=0; i<processes.size();i++) {
+			ArrayList<Integer> arrTimes = processes.get(i).getArrTimes();
+			int currentBurst = processes.get(i).getBLA();
+			if (currentBurst<arrTimes.size() && arrTimes.get(currentBurst) == time) {
+				activeProc.add(processes.get(i));
+				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (requires "+processes.get(i).getMemFrames()+" frames)");
+				addNonContiguous(processes.get(i), memory, activeProc, processes, pTable, time);
+				//printMemory(memory);
+			}
+		}
+	}
+	
+	public static void NonContiguousRemoval(ArrayList<Process> activeProc, ArrayList<Character> memory, ArrayList<ArrayList<Pair>> pTable, int time) {
+		for(int i=0;i<activeProc.size();i++) {
+			ArrayList<Integer> arrTimes = activeProc.get(i).getArrTimes();
+			ArrayList<Integer> runTimes = activeProc.get(i).getRTimes();
+			int currentBurst = activeProc.get(i).getBLA();
+			if(currentBurst<arrTimes.size() && time == arrTimes.get(currentBurst)+runTimes.get(currentBurst)){
+				System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
+				activeProc.get(i).incrementBLA(); //need to add way to make sure this doesn't go out of bounds
+				remove(activeProc.get(i), memory);
+				activeProc.remove(activeProc.get(i));
+				i--;
+				printMemory(memory);
+			}
+		}
+	}
+	
+	private static void non_contiguous(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
+		ArrayList<ArrayList<Pair>> pTable = new ArrayList<ArrayList<Pair>>();
+		ArrayList<Process> activeProcesses = new ArrayList<Process>();
+		int time =0;
+		while(true) {
+			NonContiguousArrival(processes, memory, activeProcesses , pTable, time);
+			NonContiguousRemoval(activeProcesses, memory, pTable, time);
+			time++;
+		}
 	}
 }
