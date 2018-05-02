@@ -94,7 +94,7 @@ public class Project2 {
 						memory.subList(i-freeSpace, i).clear();
 						ArrayList<Character> addFreeSpace = new ArrayList<Character>(Collections.nCopies(freeSpace, '.'));
 						memory.addAll(i-freeSpace+currentMemSpace, addFreeSpace);
-						framesMoved+=freeSpace;
+						//framesMoved+=freeSpace;
 						i = i-freeSpace+currentMemSpace;
 						freeSpace = 0;
 						break;
@@ -103,13 +103,16 @@ public class Project2 {
 						memory.subList(i-freeSpace, i).clear();
 						ArrayList<Character> addFreeSpace = new ArrayList<Character>(Collections.nCopies(freeSpace, '.'));
 						memory.addAll(i-freeSpace+currentMemSpace, addFreeSpace);
-						framesMoved+=freeSpace;
+						//framesMoved+=freeSpace;
 						i = i-freeSpace+currentMemSpace;
 						freeSpace = 0;
 						break;
 					}
 				}
 			}
+		}
+		for (int i = 0; i < activeProc.size()-1; i++) {
+			framesMoved+=activeProc.get(i).getMemFrames();
 		}
 		return framesMoved;
 	}
@@ -174,7 +177,6 @@ public class Project2 {
 			process.incrementBLA();
 			return;
 		}
-		printMemory(memory);
 		//defragment and increment times
 		System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- starting defragmentation");
 		int framesMoved = defragment(memory, activeProc);
@@ -198,7 +200,6 @@ public class Project2 {
 		
 		//try again to place
 		printMemory(memory);
-		System.out.println(justPlaced);
 		for (int i = justPlaced; i < justPlaced+spaceNeeded; i++) {
 			memory.set(i, process.getID().charAt(0));
 		}
