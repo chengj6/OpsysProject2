@@ -5,7 +5,7 @@
 // *********************************************************************************
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Project2 {
 	
@@ -25,7 +25,7 @@ public class Project2 {
 		}
 		
 		ArrayList<Process> processes = new ArrayList<Process>();
-		ArrayList<Character> memory = new ArrayList<Character>(Max_Mem_Frames);
+		ArrayList<Character> memory = new ArrayList<Character>(Collections.nCopies(Max_Mem_Frames, '.'));
 		
 		String st;
 		while ((st = br.readLine()) != null) {
@@ -55,8 +55,6 @@ public class Project2 {
 				runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
 			}
 		}
-		
-		
 		
 	}
 	
