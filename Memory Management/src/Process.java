@@ -12,6 +12,7 @@ public class Process {
 	private int memoryFrames;
 	private ArrayList<Integer> arrivalTimes;
 	private ArrayList<Integer> runTimes;
+	private int burstLookingAt;
 	
 	
 	public Process(String procId, int memFrames, ArrayList<Integer> arrTimes, ArrayList<Integer> rTimes) {
@@ -19,6 +20,7 @@ public class Process {
 		memoryFrames = memFrames;
 		arrivalTimes = arrTimes;
 		runTimes = rTimes;
+		burstLookingAt = 0;
 	}
 	
 	public Process(Process cpy) {
@@ -26,6 +28,7 @@ public class Process {
 		memoryFrames = cpy.getMemFrames();
 		arrivalTimes = cpy.getArrTimes();
 		runTimes = cpy.getRTimes();
+		burstLookingAt = cpy.getBLA();
 	}
 	
 //	dont know if we need this
@@ -37,6 +40,10 @@ public class Process {
 	//Getting Data
 	public String getID() {
 		return id;
+	}
+	
+	public int getBLA() {
+		return burstLookingAt;
 	}
 	
 	public int getMemFrames() {

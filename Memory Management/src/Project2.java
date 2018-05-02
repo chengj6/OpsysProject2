@@ -9,6 +9,9 @@ import java.util.*;
 
 public class Project2 {
 	
+	static int justPlaced;
+	static int time;
+	
 	final static int Max_Mem_Frames = 256;
 
 	public static void main(String[] args) throws Exception {
@@ -74,36 +77,42 @@ public class Project2 {
 		
 	}
 	
-	public static void arrival(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc, int time) {
+	public static void arrival(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc) {
 		for(int i=0; i<processes.size();i++) {
 			ArrayList<Integer> arrTimes = processes.get(i).getArrTimes();
-			for(int j=0;j<arrTimes.size();j++) {
-				if(arrTimes.get(j)==time) {
-					activeProc.add(processes.get(i));
-					System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (required "+processes.get(i).getMemFrames()+" frames)");
-					//addNextFit(processes.get(i), memory);
-					printMemory(memory);
-				}
+			int currentBurst = processes.get(i).getBLA();
+			
+			if (arrTimes.get(currentBurst) == time) {
+				activeProc.add(processes.get(i));
+				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (required "+processes.get(i).getMemFrames()+" frames)");
+				//addNextFit(processes.get(i), memory);
+				printMemory(memory);
 			}
 		}
 	}
 	
-	public static void removal(ArrayList<Process> activeProc, ArrayList<Character> memory, int time) {
+	public static void removal(ArrayList<Process> activeProc, ArrayList<Character> memory) {
 		for(int i=0;i<activeProc.size();i++) {
 			ArrayList<Integer> arrTimes = activeProc.get(i).getArrTimes();
 			ArrayList<Integer> runTimes = activeProc.get(i).getRTimes();
-			for(int j=0;j<arrTimes.size();j++) {
-				if(time == arrTimes.get(j)+runTimes.get(j)){
-					System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
-					//remove(activeProc.get(i), memory);
-					printMemory(memory);
-				}
+			int currentBurst = activeProc.get(i).getBLA();
+			if(time == arrTimes.get(currentBurst)+runTimes.get(currentBurst)){
+				System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
+				//remove(activeProc.get(i), memory);
+				printMemory(memory);
 			}
 		}
 	}
 	
 	private static void next_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
+		justPlaced = 0;
+		time = 0;
+		
+		while (true) {
+			arrival(processes, memory, activeProcesses);
+			removal(activeProcesses, memory);
+		}
 		
 	}
 
