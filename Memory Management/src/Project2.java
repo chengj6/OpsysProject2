@@ -37,45 +37,23 @@ public class Project2 {
 			ArrayList<Integer> runTimes = new ArrayList<Integer>();
 			newMark = st.indexOf(' ');
 			String id = st.substring(oldMark, newMark);
-			//System.out.println(id);
 			oldMark = newMark+1;
 			newMark = st.indexOf(' ', oldMark);	
 			int memFrames = Integer.parseInt(st.substring(oldMark, newMark));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf('/', oldMark);
-			arrTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf(' ', oldMark);
-			runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf('/', oldMark);
-			if(newMark==-1) {
-				processes.add(new Process(id, memFrames, arrTimes, runTimes));
-				continue;
+			while (true) {
+				oldMark = newMark+1;
+				newMark = st.indexOf('/', oldMark);
+				arrTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
+				
+				oldMark = newMark+1;
+				newMark = st.indexOf(' ', oldMark);
+				if(newMark==-1) {
+					runTimes.add(Integer.parseInt(st.substring(oldMark)));
+					processes.add(new Process(id, memFrames, arrTimes, runTimes));
+					break;
+				}
+				runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
 			}
-			arrTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf(' ', oldMark);
-			runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf('/', oldMark);
-			if(newMark==-1) {
-				processes.add(new Process(id, memFrames, arrTimes, runTimes));
-				continue;
-			}
-			arrTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			oldMark = newMark+1;
-			newMark = st.indexOf(' ', oldMark);
-			runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
-			
-			
-			processes.add(new Process(id, memFrames, arrTimes, runTimes));
 		}
 		
 		
