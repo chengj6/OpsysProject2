@@ -12,14 +12,18 @@ public class Process {
 	private int memoryFrames;
 	private ArrayList<Integer> arrivalTimes;
 	private ArrayList<Integer> runTimes;
+	private ArrayList<Integer> originalArrivalTimes;
+	private ArrayList<Integer> originalRunTimes;
 	private int burstLookingAt;
 	
 	
 	public Process(String procId, int memFrames, ArrayList<Integer> arrTimes, ArrayList<Integer> rTimes) {
 		id = procId;
 		memoryFrames = memFrames;
-		arrivalTimes = arrTimes;
-		runTimes = rTimes;
+		arrivalTimes = new ArrayList<Integer>(arrTimes);
+		runTimes = new ArrayList<Integer>(rTimes);
+		originalArrivalTimes = new ArrayList<Integer>(arrTimes);
+		originalRunTimes = new ArrayList<Integer>(rTimes);
 		burstLookingAt = 0;
 	}
 	
@@ -41,6 +45,11 @@ public class Process {
 		burstLookingAt++;
 	}
 	
+	public void incrementArrivalTimes(int increment) {
+		for (int i = 0; i < arrivalTimes.size(); i++) {
+			arrivalTimes.set(i, arrivalTimes.get(i)+increment);
+		}
+	}
 	//Getting Data
 	public String getID() {
 		return id;
