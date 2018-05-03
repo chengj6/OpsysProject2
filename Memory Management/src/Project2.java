@@ -57,10 +57,22 @@ public class Project2 {
 				runTimes.add(Integer.parseInt(st.substring(oldMark, newMark)));
 			}
 		}
-		//next_fit(processes, memory, null);
-		//best_fit(processes, memory, null);
+		next_fit(processes, memory, null);
+		for(int i=0;i<processes.size();i++) {
+			processes.get(i).reset();
+		}
+//		System.out.println();
+//		best_fit(processes, memory, null);
+//		for(int i=0;i<processes.size();i++) {
+//			processes.get(i).reset();
+//		}
+//		System.out.println();
 //		worst_fit(processes, memory, null);
-		non_contiguous(processes, memory, null);
+//		for(int i=0;i<processes.size();i++) {
+//			processes.get(i).reset();
+//		}
+//		System.out.println();
+//		non_contiguous(processes, memory, null);
 	}
 	
 	private static void printMemory(ArrayList<Character> memory) {
@@ -260,11 +272,11 @@ public class Project2 {
 	}
 	
 	private static void next_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
-		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Next-Fit)");
+		
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		justPlaced = 0;
 		time = 0;
-		
+		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Next-Fit)");
 		while (true) {
 			removal(activeProcesses, memory);
 			arrivalNF(processes, memory, activeProcesses);
@@ -277,7 +289,7 @@ public class Project2 {
 			if (n == processes.size())
 				break;
 		}
-		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Next-Fit)");
+		System.out.println("time "+(time-1)+"ms: Simulator ended (Contiguous -- Next-Fit)");
 	}
 	
 	public static void arrivalBF(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc) {
@@ -365,10 +377,9 @@ public class Project2 {
 	}
 
 	private static void best_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
-		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Best-Fit)");
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		time = 0;
-		
+		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Best-Fit)");
 		while (true) {
 			removal(activeProcesses, memory);
 			arrivalBF(processes, memory, activeProcesses);
@@ -381,7 +392,7 @@ public class Project2 {
 			if (n == processes.size())
 				break;
 		}
-		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Best-Fit)");
+		System.out.println("time "+(time-1)+"ms: Simulator ended (Contiguous -- Best-Fit)");
 	}
 	
 	public static void arrivalWF(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc) {
@@ -469,10 +480,9 @@ public class Project2 {
 	}
 	
 	private static void worst_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
-		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Worst-Fit)");
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		time = 0;
-		
+		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Worst-Fit)");
 		while (true) {
 			removal(activeProcesses, memory);
 			arrivalWF(processes, memory, activeProcesses);
@@ -485,7 +495,7 @@ public class Project2 {
 			if (n == processes.size())
 				break;
 		}
-		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Worst-Fit)");
+		System.out.println("time "+(time-1)+"ms: Simulator ended (Contiguous -- Worst-Fit)");
 	}
 	
 	public static void addPage(ArrayList<ArrayList<Pair>> pTable, String id, int procIndex, int page, int frame) {

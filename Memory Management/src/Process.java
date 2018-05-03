@@ -37,9 +37,11 @@ public class Process implements Comparable<Process> {
 	
 //	dont know if we need this
 //	//Resetting Data
-//	public void reset() {
-//		
-//	}
+	public void reset() {
+		burstLookingAt = 0;
+		arrivalTimes = new ArrayList<>(originalArrivalTimes);
+		runTimes = new ArrayList<>(originalRunTimes);
+	}
 	
 	public void incrementBLA() {
 		burstLookingAt++;
