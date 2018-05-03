@@ -59,8 +59,8 @@ public class Project2 {
 		}
 		//next_fit(processes, memory, null);
 		//best_fit(processes, memory, null);
-		worst_fit(processes, memory, null);
-		//non_contiguous(processes, memory, null);
+//		worst_fit(processes, memory, null);
+		non_contiguous(processes, memory, null);
 	}
 	
 	private static void printMemory(ArrayList<Character> memory) {
@@ -488,8 +488,39 @@ public class Project2 {
 		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Worst-Fit)");
 	}
 	
+	public static void addPage(ArrayList<ArrayList<Pair>> pTable, String id, int procIndex, int page, int frame) {
+		Pair p = new Pair(page, frame, id);
+		pTable.get(procIndex).add(p);
+	}
+	
+	public static void printPTable(ArrayList<ArrayList<Pair>> pTable, int size) {
+//		System.out.println(size);
+		System.out.println("PAGE TABLE [page,frame]:");
+		for(int i=0;i<size;i++) {
+//			System.out.println("i: "+i);
+			Pair p = pTable.get(i).get(0);
+			String id = pTable.get(i).get(0).getID();
+//			if(id=="") {
+//				break;
+//			}
+			System.out.print(id+":");
+			for(int j=0;j<pTable.get(i).size();j++) {
+				if(j%10==0&&j!=0) {
+					System.out.print(pTable.get(i).get(j).toString());
+				}else {
+					System.out.print(" "+pTable.get(i).get(j).toString());					
+				}
+				if(j%10==9&&j!=0) {
+					System.out.println("");
+				}
+			}
+			System.out.println("");
+		}
+	}
+	
 	public static void addNonContiguous(Process p, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Process> processes, ArrayList<ArrayList<Pair>> pTable, int time){
 		int fNeeded = p.getMemFrames();
+		char id = p.getID().charAt(0);
 		int freeFrames = 0;
 		int startOfFreeFrames = -1;
 		for(int i=0; i<Max_Mem_Frames; i++) {
@@ -505,9 +536,54 @@ public class Project2 {
 		}
 		if(freeFrames<fNeeded) {
 			System.out.println("time "+time+"ms: Cannot place process "+p.getID()+" -- skipped!");
+			p.incrementBLA();
 			return;
 		}
-		
+		boolean inserted = false;
+		for(int i=0;i<activeProc.size();i++) {
+			if(p.getID().compareTo(pTable.get(i).get(0).getID())<0) {
+				pTable.add(i, new ArrayList<Pair>());
+				activeProc.add(i, p);
+				inserted = true;
+//				System.out.println("Inserted");
+				break;
+			}
+		}
+		if(!inserted) {
+			pTable.add(new ArrayList<Pair>());
+			activeProc.add(p);
+		}
+		int procIndex = activeProc.indexOf(p);
+		int page = 0;
+		for(int i=0;i<fNeeded;i++, page++) {
+//			System.out.println(i+startOfFreeFrames);
+			if(i+startOfFreeFrames>=Max_Mem_Frames) {
+				for(int j=0;j<Max_Mem_Frames;j++) {
+					if(memory.get(j)=='.') {
+						startOfFreeFrames = j;
+						break;
+					}
+				}
+			}
+			if(memory.get(i+startOfFreeFrames)!='.') {
+				for(int j=i; j<Max_Mem_Frames; j++) {
+					if(memory.get(j)=='.') {
+						startOfFreeFrames = j;
+//						System.out.println("j"+j);
+						fNeeded-=i;
+						i=0;
+						break;
+					}
+				}
+			}
+			if(memory.get(i+startOfFreeFrames)=='.') {
+				memory.set(i+startOfFreeFrames, id);
+				addPage(pTable, p.getID(), procIndex, page, i+startOfFreeFrames);
+			}
+		}
+		System.out.println("time "+time+"ms: Placed process "+p.getID()+":");
+		printMemory(memory);
+		printPTable(pTable, activeProc.size());
 	}
 	
 	public static void NonContiguousArrival(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<ArrayList<Pair>> pTable, int time) {
@@ -515,7 +591,6 @@ public class Project2 {
 			ArrayList<Integer> arrTimes = processes.get(i).getArrTimes();
 			int currentBurst = processes.get(i).getBLA();
 			if (currentBurst<arrTimes.size() && arrTimes.get(currentBurst) == time) {
-				activeProc.add(processes.get(i));
 				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (requires "+processes.get(i).getMemFrames()+" frames)");
 				addNonContiguous(processes.get(i), memory, activeProc, processes, pTable, time);
 				//printMemory(memory);
@@ -529,12 +604,15 @@ public class Project2 {
 			ArrayList<Integer> runTimes = activeProc.get(i).getRTimes();
 			int currentBurst = activeProc.get(i).getBLA();
 			if(currentBurst<arrTimes.size() && time == arrTimes.get(currentBurst)+runTimes.get(currentBurst)){
-				System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed");
+				System.out.println("time "+time+"ms: Process "+ activeProc.get(i).getID()+" removed:");
 				activeProc.get(i).incrementBLA(); //need to add way to make sure this doesn't go out of bounds
 				remove(activeProc.get(i), memory);
+				pTable.remove(i);
 				activeProc.remove(activeProc.get(i));
 				i--;
 				printMemory(memory);
+				int size = activeProc.size();
+				printPTable(pTable, size);
 			}
 		}
 	}
@@ -543,10 +621,19 @@ public class Project2 {
 		ArrayList<ArrayList<Pair>> pTable = new ArrayList<ArrayList<Pair>>();
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		int time =0;
+		System.out.println("time "+ time+ "ms: Simulator started (Non-contiguous)");
 		while(true) {
 			NonContiguousArrival(processes, memory, activeProcesses , pTable, time);
 			NonContiguousRemoval(activeProcesses, memory, pTable, time);
 			time++;
+			int n = 0;
+			for (int i = 0; i < processes.size(); i++) {
+				if (processes.get(i).getBLA() == processes.get(i).getArrTimes().size())
+					n++;
+			}
+			if (n == processes.size())
+				break;
 		}
+		System.out.print("time "+(time-1)+"ms: Simulator ended (Non-contiguous)");
 	}
 }
