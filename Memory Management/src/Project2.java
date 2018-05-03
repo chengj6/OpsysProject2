@@ -623,8 +623,8 @@ public class Project2 {
 		int time =0;
 		System.out.println("time "+ time+ "ms: Simulator started (Non-contiguous)");
 		while(true) {
-			NonContiguousArrival(processes, memory, activeProcesses , pTable, time);
 			NonContiguousRemoval(activeProcesses, memory, pTable, time);
+			NonContiguousArrival(processes, memory, activeProcesses , pTable, time);
 			time++;
 			int n = 0;
 			for (int i = 0; i < processes.size(); i++) {
