@@ -73,30 +73,35 @@ public class Project2 {
 		System.out.println("================================");
 	}
 	
-	private static int defragment(ArrayList<Character> memory, ArrayList<Process> activeProc){
+	private static int defragment(ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Character> processesDealtWith){
 		int framesMoved = 0;
 		for (int i = 0; i < Max_Mem_Frames; i++) {
 			if (memory.get(i) != '.') {
 				int currentMemSpace = 0;
+				char currentID = ' ';
 				for (int k = 0; k < activeProc.size(); k++) {	//Check which process we are dealing with
 					if (activeProc.get(k).getID().charAt(0) == memory.get(i)) {
+						//processesDealtWith.add(activeProc.get(k).getID().charAt(0));
 						currentMemSpace = activeProc.get(k).getMemFrames();
+						currentID = activeProc.get(k).getID().charAt(0);
 						break;
 					}
 				}
 				
 				int freeSpace = 0;
 				for (int j = i; j > 0; j--) {
-					//System.out.println(memory.get(j-1)+":::"+j);
 					if (memory.get(j-1) == '.')
 						freeSpace++;
 					else {
 						memory.subList(i-freeSpace, i).clear();
 						ArrayList<Character> addFreeSpace = new ArrayList<Character>(Collections.nCopies(freeSpace, '.'));
 						memory.addAll(i-freeSpace+currentMemSpace, addFreeSpace);
-						if (freeSpace > 0)
+						if (freeSpace > 0) {
 							framesMoved+=currentMemSpace;
+							processesDealtWith.add(currentID);
+						}
 						i = i-freeSpace+currentMemSpace;
+						
 						freeSpace = 0;
 						break;
 					}
@@ -104,8 +109,10 @@ public class Project2 {
 						memory.subList(i-freeSpace, i).clear();
 						ArrayList<Character> addFreeSpace = new ArrayList<Character>(Collections.nCopies(freeSpace, '.'));
 						memory.addAll(i-freeSpace+currentMemSpace, addFreeSpace);
-						if (freeSpace > 0)
+						if (freeSpace > 0) {
 							framesMoved+=currentMemSpace;
+							processesDealtWith.add(currentID);
+						}
 						i = i-freeSpace+currentMemSpace;
 						freeSpace = 0;
 						break;
@@ -139,7 +146,7 @@ public class Project2 {
 					
 					justPlaced = i-freeSpace+spaceNeeded;
 				
-					System.out.println("time "+time+"ms: Placed process "+process.getID());
+					System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
 					printMemory(memory);
 					return;
 				}
@@ -157,7 +164,7 @@ public class Project2 {
 					}
 					
 					justPlaced = k+spaceNeeded;
-					System.out.println("time "+time+"ms: Placed process "+process.getID());
+					System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
 					printMemory(memory);
 					return;
 				}
@@ -172,7 +179,6 @@ public class Project2 {
 				freeSpace = 0;
 			}
 		}
-		System.out.println(totalFreeSpace);
 		if (totalFreeSpace < spaceNeeded) {
 			System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- skipped!");
 			process.incrementBLA();
@@ -180,16 +186,17 @@ public class Project2 {
 		}
 		//defragment and increment times
 		System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- starting defragmentation");
-		int framesMoved = defragment(memory, activeProc);
+		ArrayList<Character> processesDealtWith = new ArrayList<>();
+		int framesMoved = defragment(memory, activeProc, processesDealtWith);
 		time+=framesMoved;
 		for (int i = 0; i < processes.size(); i++) {
 			processes.get(i).incrementArrivalTimes(framesMoved);
 		}
 		System.out.print("time "+time+"ms: Defragmentation complete (moved "+framesMoved+" frames: ");
-		for (int i = 0; i < activeProc.size()-1; i++) {
-			System.out.print(activeProc.get(i).getID().charAt(0)+", ");
+		for (int i = 0; i < processesDealtWith.size()-1; i++) {
+			System.out.print(processesDealtWith.get(i)+", ");
 		}
-		System.out.println(activeProc.get(activeProc.size()-1).getID().charAt(0)+")");
+		System.out.println(processesDealtWith.get(processesDealtWith.size()-1)+")");
 		
 		// move ptr after defragmentation
 		for (int i = 0; i < memory.size(); i++) {
@@ -204,7 +211,7 @@ public class Project2 {
 		for (int i = justPlaced; i < justPlaced+spaceNeeded; i++) {
 			memory.set(i, process.getID().charAt(0));
 		}
-		System.out.println("time "+time+"ms: Placed process "+process.getID());
+		System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
 		justPlaced += spaceNeeded;
 		printMemory(memory);
 		
@@ -234,7 +241,9 @@ public class Project2 {
 	}
 	
 	public static void removal(ArrayList<Process> activeProc, ArrayList<Character> memory) {
+		Collections.sort(activeProc);
 		for(int i=0;i<activeProc.size();i++) {
+			//System.out.println(activeProc.get(i).getID());
 			ArrayList<Integer> arrTimes = activeProc.get(i).getArrTimes();
 			ArrayList<Integer> runTimes = activeProc.get(i).getRTimes();
 			int currentBurst = activeProc.get(i).getBLA();
@@ -250,13 +259,15 @@ public class Project2 {
 	}
 	
 	private static void next_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
+		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Next-Fit)");
 		ArrayList<Process> activeProcesses = new ArrayList<Process>();
 		justPlaced = 0;
 		time = 0;
 		
 		while (true) {
-			arrival(processes, memory, activeProcesses);
 			removal(activeProcesses, memory);
+			arrival(processes, memory, activeProcesses);
+			
 			time++;
 			int n = 0;
 			for (int i = 0; i < processes.size(); i++) {
@@ -266,6 +277,7 @@ public class Project2 {
 			if (n == processes.size())
 				break;
 		}
+		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Next-Fit)");
 		
 	}
 

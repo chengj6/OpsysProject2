@@ -6,7 +6,7 @@
 
 import java.util.ArrayList;
 
-public class Process {
+public class Process implements Comparable<Process> {
 
 	private String id;
 	private int memoryFrames;
@@ -69,6 +69,12 @@ public class Process {
 	
 	public ArrayList<Integer> getRTimes(){
 		return runTimes;
+	}
+	
+	@Override
+	public int compareTo(Process p) {
+        // Compare the two processes based on remaining burst time
+        return this.getID().compareTo(p.getID());
 	}
 	
 }
