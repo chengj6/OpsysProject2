@@ -58,7 +58,8 @@ public class Project2 {
 			}
 		}
 		//next_fit(processes, memory, null);
-		best_fit(processes, memory, null);
+		//best_fit(processes, memory, null);
+		worst_fit(processes, memory, null);
 		//non_contiguous(processes, memory, null);
 	}
 	
@@ -307,7 +308,6 @@ public class Project2 {
 						break;
 					}
 				}
-				
 			}
 		}
 		for (int i = 0; i < Max_Mem_Frames; i++)
@@ -315,8 +315,6 @@ public class Project2 {
 				totalFreeSpace++;
 			
 		int start = -1;
-//		System.out.println("TotalSpace: "+totalFreeSpace);
-//		System.out.println("spaceNeeded: "+spaceNeeded);
 		if (totalFreeSpace < spaceNeeded) {
 			System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- skipped!");
 			process.incrementBLA();
@@ -325,7 +323,6 @@ public class Project2 {
 		else {
 			int minPartition = Max_Mem_Frames;
 			for (int i = 0; i < freePartitions.size(); i++) {
-				//System.out.println("Partition size: "+freePartitions.get(i).getSize());
 				if (freePartitions.get(i).getSize() <= minPartition && freePartitions.get(i).getSize() >= spaceNeeded) {
 					minPartition = freePartitions.get(i).getSize();
 					start = freePartitions.get(i).getStart();
@@ -338,13 +335,11 @@ public class Project2 {
 			ArrayList<Character> processesDealtWith = new ArrayList<>();
 			int framesMoved = defragment(memory, activeProc, processesDealtWith);
 			time+=framesMoved;
-			for (int i = 0; i < processes.size(); i++) {
+			for (int i = 0; i < processes.size(); i++) 
 				processes.get(i).incrementArrivalTimes(framesMoved);
-			}
 			System.out.print("time "+time+"ms: Defragmentation complete (moved "+framesMoved+" frames: ");
-			for (int i = 0; i < processesDealtWith.size()-1; i++) {
+			for (int i = 0; i < processesDealtWith.size()-1; i++) 
 				System.out.print(processesDealtWith.get(i)+", ");
-			}
 			System.out.println(processesDealtWith.get(processesDealtWith.size()-1)+")");
 
 			//try again to place
@@ -355,21 +350,18 @@ public class Project2 {
 					break;
 				}
 			}
-			for (int i = start; i < start+spaceNeeded; i++) {
-				memory.set(i, process.getID().charAt(0));
-			}
+			for (int i = start; i < start+spaceNeeded; i++) 
+				memory.set(i, process.getID().charAt(0));			
 			System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
 			printMemory(memory);
 		}
 		else {
 			//System.out.println("Start: "+start);
-			for (int i = start; i < start+spaceNeeded; i++) {
+			for (int i = start; i < start+spaceNeeded; i++) 
 				memory.set(i, process.getID().charAt(0));
-			}
 			System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
 			printMemory(memory);
 		}
-		
 	}
 
 	private static void best_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
@@ -392,10 +384,108 @@ public class Project2 {
 		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Best-Fit)");
 	}
 	
+	public static void arrivalWF(ArrayList<Process> processes, ArrayList<Character> memory, ArrayList<Process> activeProc) {
+		for(int i=0; i<processes.size();i++) {
+			ArrayList<Integer> arrTimes = processes.get(i).getArrTimes();
+			int currentBurst = processes.get(i).getBLA();
+			if (currentBurst<arrTimes.size() && arrTimes.get(currentBurst) == time) {
+				activeProc.add(processes.get(i));
+				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (requires "+processes.get(i).getMemFrames()+" frames)");
+				addWorstFit(processes.get(i), memory, activeProc, processes);
+			}
+		}
+	}
 	
+	private static void addWorstFit(Process process, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Process> processes){
+		int spaceNeeded = process.getMemFrames();
+		int freeSpace = 0;
+		int totalFreeSpace = 0;
+		ArrayList<Partition> freePartitions = new ArrayList<>();
+		
+		//get partitions
+		for (int i = 0; i < Max_Mem_Frames; i++) {
+			if (memory.get(i) == '.') {
+				for (int j = i; j < Max_Mem_Frames; j++) {
+					if (memory.get(j) != '.' || j == Max_Mem_Frames-1) {
+						freePartitions.add(new Partition(i, j-i));	
+						i += j-1;
+						break;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < Max_Mem_Frames; i++)
+			if (memory.get(i) == '.')
+				totalFreeSpace++;
+			
+		int start = -1;
+		if (totalFreeSpace < spaceNeeded) {
+			System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- skipped!");
+			process.incrementBLA();
+			return;
+		}
+		else {
+			int maxPartition = 0;
+			for (int i = 0; i < freePartitions.size(); i++) {
+				if (freePartitions.get(i).getSize() >= maxPartition && freePartitions.get(i).getSize() >= spaceNeeded) {
+					maxPartition = freePartitions.get(i).getSize();
+					start = freePartitions.get(i).getStart();
+				}
+			}
+		}
+		if (start == -1) {
+			//defragment and increment times
+			System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- starting defragmentation");
+			ArrayList<Character> processesDealtWith = new ArrayList<>();
+			int framesMoved = defragment(memory, activeProc, processesDealtWith);
+			time+=framesMoved;
+			for (int i = 0; i < processes.size(); i++) 
+				processes.get(i).incrementArrivalTimes(framesMoved);
+			System.out.print("time "+time+"ms: Defragmentation complete (moved "+framesMoved+" frames: ");
+			for (int i = 0; i < processesDealtWith.size()-1; i++) 
+				System.out.print(processesDealtWith.get(i)+", ");
+			System.out.println(processesDealtWith.get(processesDealtWith.size()-1)+")");
+
+			//try again to place
+			printMemory(memory);
+			for (int i = 0; i < Max_Mem_Frames; i++) {
+				if (memory.get(i) == '.') {
+					start = i;
+					break;
+				}
+			}
+			for (int i = start; i < start+spaceNeeded; i++) 
+				memory.set(i, process.getID().charAt(0));			
+			System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
+			printMemory(memory);
+		}
+		else {
+			//System.out.println("Start: "+start);
+			for (int i = start; i < start+spaceNeeded; i++) 
+				memory.set(i, process.getID().charAt(0));
+			System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
+			printMemory(memory);
+		}
+	}
 	
 	private static void worst_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
+		System.out.println("time "+time+"ms: Simulator started (Contiguous -- Worst-Fit)");
+		ArrayList<Process> activeProcesses = new ArrayList<Process>();
+		time = 0;
 		
+		while (true) {
+			removal(activeProcesses, memory);
+			arrivalWF(processes, memory, activeProcesses);
+			time++;
+			int n = 0;
+			for (int i = 0; i < processes.size(); i++) {
+				if (processes.get(i).getBLA() == processes.get(i).getArrTimes().size())
+					n++;
+			}
+			if (n == processes.size())
+				break;
+		}
+		System.out.print("time "+(time-1)+"ms: Simulator ended (Contiguous -- Worst-Fit)");
 	}
 	
 	public static void addNonContiguous(Process p, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Process> processes, ArrayList<ArrayList<Pair>> pTable, int time){
