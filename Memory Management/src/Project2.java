@@ -408,7 +408,7 @@ public class Project2 {
 				for (int j = i; j < Max_Mem_Frames; j++) {
 					if (memory.get(j) != '.' || j == Max_Mem_Frames-1) {
 						freePartitions.add(new Partition(i, j-i));	
-						i += j-1;
+						i += j-1; //didn't do this in best fit
 						break;
 					}
 				}
