@@ -1,3 +1,8 @@
+// *********************************************************************************
+//	Shashank Sundar: sundas6
+//	Jonathan Cheng: chengj6
+//	Kris Whelan: whelak2
+// *********************************************************************************
 
 public class Partition {
 	private int start;

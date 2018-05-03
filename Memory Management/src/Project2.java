@@ -61,18 +61,18 @@ public class Project2 {
 		for(int i=0;i<processes.size();i++) {
 			processes.get(i).reset();
 		}
-//		System.out.println();
-//		best_fit(processes, memory, null);
-//		for(int i=0;i<processes.size();i++) {
-//			processes.get(i).reset();
-//		}
-//		System.out.println();
-//		worst_fit(processes, memory, null);
-//		for(int i=0;i<processes.size();i++) {
-//			processes.get(i).reset();
-//		}
-//		System.out.println();
-//		non_contiguous(processes, memory, null);
+		System.out.println();
+		best_fit(processes, memory, null);
+		for(int i=0;i<processes.size();i++) {
+			processes.get(i).reset();
+		}
+		System.out.println();
+		worst_fit(processes, memory, null);
+		for(int i=0;i<processes.size();i++) {
+			processes.get(i).reset();
+		}
+		System.out.println();
+		non_contiguous(processes, memory, null);
 	}
 	
 	private static void printMemory(ArrayList<Character> memory) {
@@ -239,7 +239,6 @@ public class Project2 {
 				activeProc.add(processes.get(i));
 				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (requires "+processes.get(i).getMemFrames()+" frames)");
 				addNextFit(processes.get(i), memory, activeProc, processes);
-				//printMemory(memory);
 			}
 		}
 	}
@@ -368,7 +367,6 @@ public class Project2 {
 			printMemory(memory);
 		}
 		else {
-			//System.out.println("Start: "+start);
 			for (int i = start; i < start+spaceNeeded; i++) 
 				memory.set(i, process.getID().charAt(0));
 			System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
@@ -504,15 +502,10 @@ public class Project2 {
 	}
 	
 	public static void printPTable(ArrayList<ArrayList<Pair>> pTable, int size) {
-//		System.out.println(size);
 		System.out.println("PAGE TABLE [page,frame]:");
 		for(int i=0;i<size;i++) {
-//			System.out.println("i: "+i);
 			Pair p = pTable.get(i).get(0);
 			String id = pTable.get(i).get(0).getID();
-//			if(id=="") {
-//				break;
-//			}
 			System.out.print(id+":");
 			for(int j=0;j<pTable.get(i).size();j++) {
 				if(j%10==0&&j!=0) {
@@ -555,7 +548,6 @@ public class Project2 {
 				pTable.add(i, new ArrayList<Pair>());
 				activeProc.add(i, p);
 				inserted = true;
-//				System.out.println("Inserted");
 				break;
 			}
 		}
@@ -566,7 +558,6 @@ public class Project2 {
 		int procIndex = activeProc.indexOf(p);
 		int page = 0;
 		for(int i=0;i<fNeeded;i++, page++) {
-//			System.out.println(i+startOfFreeFrames);
 			if(i+startOfFreeFrames>=Max_Mem_Frames) {
 				for(int j=0;j<Max_Mem_Frames;j++) {
 					if(memory.get(j)=='.') {
@@ -579,7 +570,6 @@ public class Project2 {
 				for(int j=i; j<Max_Mem_Frames; j++) {
 					if(memory.get(j)=='.') {
 						startOfFreeFrames = j;
-//						System.out.println("j"+j);
 						fNeeded-=i;
 						i=0;
 						break;
@@ -603,7 +593,6 @@ public class Project2 {
 			if (currentBurst<arrTimes.size() && arrTimes.get(currentBurst) == time) {
 				System.out.println("time "+time+"ms: Process "+processes.get(i).getID()+" arrived (requires "+processes.get(i).getMemFrames()+" frames)");
 				addNonContiguous(processes.get(i), memory, activeProc, processes, pTable, time);
-				//printMemory(memory);
 			}
 		}
 	}
