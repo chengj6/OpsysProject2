@@ -285,6 +285,100 @@ public class Project2 {
 		
 	}
 	
+	private static void addBestFit(Process process, ArrayList<Character> memory, ArrayList<Process> activeProc, ArrayList<Process> processes){
+		int spaceNeeded = process.getMemFrames();
+		int freeSpace = 0;
+		int totalFreeSpace = 0;
+		int loop = 0;
+		if (justPlaced == Max_Mem_Frames)
+			justPlaced = 255;
+		for (int i = 0; i < Max_Mem_Frames; i++) {
+			if (memory.get(i) == '.')
+				totalFreeSpace++;
+		}
+		for (int i = justPlaced; i < Max_Mem_Frames; i++) {
+			if (memory.get(i) == '.') {
+				freeSpace++;
+				if(freeSpace >= spaceNeeded && loop == 0) {
+					int x = 0;
+					for (int j = i-freeSpace+1; x < process.getMemFrames(); j++) {
+						memory.set(j, process.getID().charAt(0));
+						x++;
+					}
+					
+					justPlaced = i-freeSpace+spaceNeeded;
+				
+					System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
+					printMemory(memory);
+					return;
+				}
+				else if (freeSpace >= spaceNeeded && loop == 1) {
+					int k = 0;
+					for (int l = 0; l < memory.size(); l++) {
+						if (memory.get(l) == '.') {
+							k = l;
+							break;
+						}
+					}
+					
+					for (int j = k; j < k+spaceNeeded; j++) {
+						memory.set(j, process.getID().charAt(0));
+					}
+					
+					justPlaced = k+spaceNeeded;
+					System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
+					printMemory(memory);
+					return;
+				}
+			}
+			else {
+				freeSpace = 0;
+			}
+			
+			if (i == Max_Mem_Frames-1 && loop == 0) {
+				i = -1;
+				loop = 1;
+				freeSpace = 0;
+			}
+		}
+		if (totalFreeSpace < spaceNeeded) {
+			System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- skipped!");
+			process.incrementBLA();
+			return;
+		}
+		//defragment and increment times
+		System.out.println("time "+time+"ms: Cannot place process "+process.getID()+" -- starting defragmentation");
+		ArrayList<Character> processesDealtWith = new ArrayList<>();
+		int framesMoved = defragment(memory, activeProc, processesDealtWith);
+		time+=framesMoved;
+		for (int i = 0; i < processes.size(); i++) {
+			processes.get(i).incrementArrivalTimes(framesMoved);
+		}
+		System.out.print("time "+time+"ms: Defragmentation complete (moved "+framesMoved+" frames: ");
+		for (int i = 0; i < processesDealtWith.size()-1; i++) {
+			System.out.print(processesDealtWith.get(i)+", ");
+		}
+		System.out.println(processesDealtWith.get(processesDealtWith.size()-1)+")");
+		
+		// move ptr after defragmentation
+		for (int i = 0; i < memory.size(); i++) {
+			if (memory.get(i) == '.') {
+				justPlaced = i;
+				break;
+			}
+		}
+		
+		//try again to place
+		printMemory(memory);
+		for (int i = justPlaced; i < justPlaced+spaceNeeded; i++) {
+			memory.set(i, process.getID().charAt(0));
+		}
+		System.out.println("time "+time+"ms: Placed process "+process.getID()+":");
+		justPlaced += spaceNeeded;
+		printMemory(memory);
+		
+	}
+	
 	private static void worst_fit(ArrayList<Process> processes, ArrayList<Character> memory, BufferedWriter writer){
 		
 	}
